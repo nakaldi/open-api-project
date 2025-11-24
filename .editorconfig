@@ -1,0 +1,8 @@
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf  # 여기서 강제로 LF로 고정해버림!
+indent_style = space
+indent_size = 4
