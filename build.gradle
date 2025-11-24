@@ -35,6 +35,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // 아래부터 JSP를 위한 의존성
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper' // JSP 컴파일 엔진
+    implementation 'jakarta.servlet:jakarta.servlet-api'
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api' // JSTL
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
 }
 
 tasks.named('test') {
