@@ -29,7 +29,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // JSP 요청이면: 로그인 페이지로 리다이렉트
         response.sendRedirect("/login");
         return false;
     }

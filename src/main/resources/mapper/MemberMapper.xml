@@ -3,7 +3,7 @@
 
 <mapper namespace="com.example.open_api_project.service.impl.MemberMapper">
 
-    <select id="selectMemberByUsername" resultType="MemberVO">
+    <select id="selectMemberByUsername" resultType="com.example.open_api_project.service.MemberVO">
         SELECT
             id,
             username,
@@ -17,7 +17,7 @@
         WHERE username = #{username}
     </select>
 
-    <insert id="insertMember" parameterType="MemberVO">
+    <insert id="insertMember" parameterType="com.example.open_api_project.service.MemberVO">
         INSERT INTO member (
             username,
             password,
