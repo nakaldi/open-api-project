@@ -23,24 +23,50 @@ configurations {
 repositories {
 	mavenCentral()
 }
+ext {
+    jjwtVersion = '0.12.5'
+}
 
 dependencies {
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    /*
+     jjwt (Java JWT)
+     jjwt-api: JWT 관련 인터페이스
+     jjwt-impl: JWT 구현체 (runtime)
+     jjwt-jackson: JSON 처리 (runtime)
+    */
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
-    // 아래부터 JSP를 위한 의존성
-    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper' // JSP 컴파일 엔진
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // JSP
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper' // JSP compile engine
     implementation 'jakarta.servlet:jakarta.servlet-api'
     implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api' // JSTL
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+
+    // MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+
+    // DB Driver (Runtime only)
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Lombok (Maven의 optional:true와 plugin exclude 처리를 위해 compileOnly 사용)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test Dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
 }
 
 tasks.named('test') {

@@ -1,0 +1,117 @@
+/* === 헤더 전체 레이아웃 === */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: #eef4fb;
+
+  /* [수정됨] post 페이지의 실제 크기(950+30+30)에 맞춰 1010px로 설정 */
+  max-width: 1010px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 20px 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  /* 패딩이 달라도 전체 크기를 1010px로 딱 고정하기 위해 필수 */
+  box-sizing: border-box;
+}
+
+/* === 로고 영역 === */
+.header-logo-container {
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+/* === 메뉴 컨테이너 === */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: transparent;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.nav-container > a {
+  margin-left: 24px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.nav-container > a:hover {
+  color: #111111;
+}
+
+/* === 버튼 스타일 === */
+#header-anonymous a,
+#header-authenticated a {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: white;
+  color: black;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-left: 15px;
+}
+
+#header-anonymous a:hover,
+#header-authenticated a:hover {
+  background-color: blue;
+  color: white;
+  border-color: blue;
+}
+
+.welcome-message {
+  margin-right: 12px;
+  white-space: nowrap;
+}
+
+/* === 모바일 반응형 (줄바꿈 방지 및 중앙 정렬) === */
+@media (max-width: 768px) {
+  .site-header {
+    flex-direction: column;
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .header-logo-container {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .nav-container {
+    width: 100%;
+    justify-content: center; /* 메뉴 가운데 정렬 */
+    flex-wrap: nowrap; /* ★ 절대 줄바꿈 안 함 ★ */
+    overflow-x: auto; /* 화면이 너무 좁으면 좌우 스크롤 생김 (깨짐 방지) */
+
+    /* 스크롤바 숨기기 (선택사항) */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* 크롬, 사파리, 오페라에서 스크롤바 숨기기 */
+  .nav-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-container > a {
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+
+  #header-anonymous a,
+  #header-authenticated a {
+    margin-left: 8px;
+    font-size: 14px;
+  }
+}

@@ -1,6 +1,17 @@
 spring:
     application:
         name: open-api-project
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: cavia.io.team@gmail.com
+        password:
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
 
     security:
         user:
@@ -22,3 +33,32 @@ mybatis:
     mapper-locations: classpath:mapper/**/*.xml
     configuration:
         map-underscore-to-camel-case: true
+
+# custom email properties
+email:
+    from:
+        address: no-reply@placediary.io
+        personal: placediary team
+
+# google recaptcha secret key for blocking too many sending email
+recaptcha:
+    secret-key:
+
+# JWT properties, DO NOT ADD SECRET KEY
+jwt:
+    secret:
+        key: 
+
+# tokens expiration time in milliseconds
+auth:
+    access-token:
+        expiration:
+            time: 600000
+    refresh-token:
+        expiration:
+            time: 6000000
+
+
+logging:
+    level:
+        com.example.open_api_project: debug
