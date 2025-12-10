@@ -3,28 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <title>메인 | TRADER</title>
-    <!-- 기본 파비콘 -->
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
-    <!-- 구형 브라우저 호환용 ICO -->
     <link rel="shortcut icon" href="/images/favicon.ico">
+
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/footer.css">
+
+    <style>
+        /* 지도가 들어갈 영역 */
+        #map {
+            width: 100%;
+            height: 70vh; /* 화면 높이의 70% */
+            min-height: 500px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        /* 입력 모달창 */
+        #input-box {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%); /* 화면 정중앙 배치 */
+            z-index: 1000; /* 헤더보다 높게 */
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: none;
+            width: 320px;
+            text-align: center;
+        }
+        #input-box h3 { margin-top: 0; color: #333; margin-bottom: 15px;}
+        #input-box input, #input-box textarea {
+            width: 100%; margin-bottom: 10px; padding: 10px;
+            box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px;
+        }
+        #input-box textarea { height: 80px; resize: none; }
+
+        .btn-group { display: flex; justify-content: space-between; gap: 10px;}
+        .btn-group button { width: 100%; padding: 10px; cursor: pointer; border: none; border-radius: 4px; color: white; font-weight: bold; }
+        .btn-save { background-color: #2c3e50; } /* 네 테마색에 맞춤 */
+        .btn-cancel { background-color: #e74c3c; }
+
+        /* 인포윈도우 스타일 */
+        .info-window { padding: 5px; color: #333; }
+        .info-title { font-weight: bold; font-size: 14px; display: block; margin-bottom: 2px; }
+        .info-desc { font-size: 12px; color: #666; }
+    </style>
 </head>
 <body>
+
 <div th:replace="~{fragments/header :: header}"></div>
+
 <div class="main-wrapper">
     <div class="main-container">
-        <div id="message"></div>
 
+        <h2 style="margin-bottom: 20px;">나만의 장소 기록</h2>
+
+        <div id="map"></div>
+
+        <div id="input-box">
+            <h3>장소 저장</h3>
+            <input type="text" id="placeName" placeholder="장소 이름">
+            <textarea id="description" placeholder="메모를 남겨주세요"></textarea>
+
+            <div class="btn-group">
+                <button class="btn-save" onclick="saveLocation()">저장하기</button>
+                <button class="btn-cancel" onclick="cancel()">취소</button>
+            </div>
+        </div>
     </div>
-
 </div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-</body>
 <script src="/js/header.js"></script>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=589dd22bcabe99eced98827248ac6a40"></script>
+
+<script>
+    const token = localStorage.getItem('jwt-token');
+    var mapContainer = document.getElementById('map');
+    var mapOption = {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 서울 시청
+        level: 3
+    };
+
+    // 내 위치 가져와서 지도 중심 이동시키기
+    if (navigator.geolocation) {
+        // 브라우저가 위치 정보를 지원하면
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude; // 내 위도
+            var lon = position.coords.longitude; // 내 경도
+
+            var locPosition = new kakao.maps.LatLng(lat, lon); // 내 위치 좌표 생성
+            map.setCenter(locPosition); // 지도의 중심을 내 위치로 변경
+        });
+    }
+
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+    var clickedLat, clickedLng;
+
+    // 초기화: 마커 불러오기
+    loadMarkers();
+
+    // 지도 클릭 이벤트
+    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+        var latlng = mouseEvent.latLng;
+        clickedLat = latlng.getLat();
+        clickedLng = latlng.getLng();
+
+        // 입력창 초기화 및 표시
+        document.getElementById('placeName').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('input-box').style.display = 'block';
+        document.getElementById('placeName').focus();
+    });
+
+    function saveLocation() {
+        var name = document.getElementById('placeName').value;
+        var desc = document.getElementById('description').value;
+
+        if(!name) { alert("장소 이름을 입력하세요"); return; }
+
+        var data = {
+            placeName: name,
+            description: desc,
+            latitude: clickedLat,
+            longitude: clickedLng
+        };
+
+        fetch('/api/places', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+             },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if(response.ok) {
+                alert("저장되었습니다.");
+                addMarker(clickedLat, clickedLng, name, desc);
+                cancel();
+            } else {
+                alert("저장 실패");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function loadMarkers() {
+        fetch('/api/places', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => response.json())
+        .then(responseBody => {
+            // 네 서버 응답 구조: { status: 200, message: "OK", data: [...] }
+            // 그래서 responseBody.data 로 꺼내야 함!
+            const places = responseBody.data;
+
+            if (places && places.length > 0) {
+                places.forEach(item => {
+                    addMarker(item.latitude, item.longitude, item.placeName, item.description);
+                });
+                console.log("마커 " + places.length + "개 로딩 완료!");
+            } else {
+                console.log("저장된 장소가 없습니다.");
+            }
+        })
+        .catch(error => console.error('마커 로딩 실패:', error));
+    }
+
+    function addMarker(lat, lng, title, desc) {
+        var marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(lat, lng),
+            map: map
+        });
+
+        var iwContent = `
+            <div class="info-window">
+                <span class="info-title">${title}</span>
+                <span class="info-desc">${desc ? desc : ''}</span>
+            </div>`;
+
+        var infowindow = new kakao.maps.InfoWindow({
+            content : iwContent,
+            removable : true
+        });
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker);
+        });
+    }
+
+    function cancel() {
+        document.getElementById('input-box').style.display = 'none';
+    }
+</script>
+
+</body>
 </html>
